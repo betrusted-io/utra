@@ -120,7 +120,7 @@ where
     }
 
     /// Write a given field without reading it first
-    pub fn wf(&mut self, field: Field, value: T) {
+    pub fn wof(&mut self, field: Field, value: T) {
         let usize_base: *mut usize = unsafe { core::mem::transmute(self.base) };
         let value_as_usize: usize = value.try_into().unwrap_or_default() << field.offset;
         unsafe {
@@ -131,7 +131,7 @@ where
     }
 
     /// Write the entire contents of a register without reading it first
-    pub fn w(&mut self, reg: Register, value: T) {
+    pub fn wo(&mut self, reg: Register, value: T) {
         let usize_base: *mut usize = unsafe { core::mem::transmute(self.base) };
         let value_as_usize: usize = value.try_into().unwrap_or_default();
         unsafe { usize_base.add(reg.offset).write_volatile(value_as_usize) };
@@ -178,20 +178,20 @@ mod tests {
         let mut uart = CSR::new(0x1001_0000 as *mut u8);
 
         // Write the RXTX field of the RXTX register
-        uart.wf(pac::uart::RXTX_RXTX, b'a');
+        uart.wof(pac::uart::RXTX_RXTX, b'a');
 
         // Or you can write the whole UART register
-        uart.w(pac::uart::RXTX, b'a');
+        uart.wo(pac::uart::RXTX, b'a');
         assert_ne!(uart.rf(pac::uart::TXFULL_TXFULL), 1);
 
         // Anomalies
 
         // This compiles but requires a cast since `audio` is a pointer to
         // u32, whereas `uart` is a pointer to u8.
-        audio.wf(pac::uart::RXTX_RXTX, b'a' as _);
+        audio.wof(pac::uart::RXTX_RXTX, b'a' as _);
 
         // This also compiles, despite the fact that the register offset is
         // mismatched and nonsensical
-        audio.wf(pac::uart::TXFULL_TXFULL, 1);
+        audio.wof(pac::uart::TXFULL_TXFULL, 1);
     }
 }
