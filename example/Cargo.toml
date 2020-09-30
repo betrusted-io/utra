@@ -1,0 +1,13 @@
+
+[package]
+name = "utra"
+version = "0.1.0"
+authors = ["autogen by svd2utra.py", "Sean Cross <sean@xobs.io>", "bunnie <bunnie@kosagi.com>"]
+homepage = "https://github.com/betrusted-io/utra"
+description = "Register descriptions generated from ../betrusted-soc/build/software/soc.svd"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]    
+    
