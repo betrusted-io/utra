@@ -1,4 +1,4 @@
-// Auto-genarated by svd2utra.py from ../betrusted-soc/build/software/soc.svd on 10/01/2020, 05:09:42
+// Auto-genarated by svd2utra.py from ../betrusted-soc/build/software/soc.svd on 10/01/2020, 14:55:47
 
 #![cfg_attr(target_os = "none", no_std)]
 use core::convert::TryInto;
@@ -1066,6 +1066,7 @@ pub mod utra {
 #[cfg(test)]
 mod tests{
     #[test]
+    #[ignore]
     fn compile_check() {
         use super::*;
     

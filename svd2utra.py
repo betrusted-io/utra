@@ -78,6 +78,7 @@ def make_test(root, lib):
 #[cfg(test)]
 mod tests{
     #[test]
+    #[ignore]
     fn compile_check() {
         use super::*;
     \n""")
