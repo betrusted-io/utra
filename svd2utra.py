@@ -27,14 +27,14 @@ def generate(fname, oname='utra'):
         name = region.find('name')
         base = region.find('baseAddress')
         size = region.find('size')
-        lib.write('pub const HW_' + name.text + '_MEM :     u32 = ' + '{};\n'.format(base.text) )
-        lib.write('pub const HW_' + name.text + '_MEM_LEN : u32 = ' + '{};\n'.format(size.text) )
+        lib.write('pub const HW_' + name.text + '_MEM :     usize = ' + '{};\n'.format(base.text) )
+        lib.write('pub const HW_' + name.text + '_MEM_LEN : usize = ' + '{};\n'.format(size.text) )
 
     lib.write('\n\n/////// physical base addresses of registers\n')
     for peripheral in peripherals:
         peri_name = peripheral.find('name')
         base = peripheral.find('baseAddress')
-        lib.write('pub const HW_' + peri_name.text + '_BASE :   u32 = ' + '{};\n'.format(base.text) )
+        lib.write('pub const HW_' + peri_name.text + '_BASE :   usize = ' + '{};\n'.format(base.text) )
 
     lib.write('\n\n')
     lib.write('pub mod utra {\n')
