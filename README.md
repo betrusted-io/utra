@@ -116,3 +116,62 @@ The `.ms(field,value)` can also be used to synthesize initial register
 values that need to be committed all at once to a hardware register,
 before a `.wo(value)` call.
 
+## Example Usage
+
+Let's assume you've used svd2utra.py to create a `utra` crate in the
+same directory as svd2utra.py, and you've added this to your `Cargo.toml` file.
+Now, inside your `lib.rs` file, you might have something like this:
+
+```Rust
+use utra
+
+fn test_fn() {
+        // Audio tests
+
+        // The audio block is a pointer to *mut 32.
+        let mut audio = CSR::new(HW_AUDIO_BASE as *mut u32);
+
+        // Read the entire contents of the RX_CTL register
+        audio.r(utra::audio::RX_CTL);
+
+        // Or read just one field
+        audio.rf(utra::audio::RX_CTL_ENABLE);
+
+        // Do a read-modify-write of the specified field
+        audio.rmwf(utra::audio::RX_CTL_RESET, 1);
+
+	// Do a multi-field operation where all fields are updated in a single write.
+	// First read the field into a temp variable.
+        let mut stat = audio.r(utra::audio::RX_STAT);
+	// in read replica, zero EMPTY and RDCOUNT
+	stat = audio.zf(utra::audio::RX_STAT_EMPTY, stat);
+	stat = audio.zf(utra::audio::RX_STAT_RDCOUNT, stat);
+	// in read replica, now set RDCOUNT to 0x123
+	stat |= audio.ms(utra::audio::RX_STAT_RDCOUNT, 0x123);
+	// commit read replica to register, updating both EMPTY and RDCOUNT in a single write
+	audio.wo(utra::audio::RX_STAT, stat);
+
+        // UART tests
+
+        // Create the UART register as a pointer to *mut u8
+        let mut uart = CSR::new(HW_UART_BASE as *mut u8);
+
+        // Write the RXTX field of the RXTX register
+        uart.wfo(utra::uart::RXTX_RXTX, b'a');
+
+        // Or you can write the whole UART register
+        uart.wo(utra::uart::RXTX, b'a');
+        assert_ne!(uart.rf(pac::uart::TXFULL_TXFULL), 1);
+
+        // Anomalies
+
+        // This compiles but requires a cast since `audio` is a pointer to
+        // u32, whereas `uart` is a pointer to u8.
+        audio.wfo(utra::uart::RXTX_RXTX, b'a' as _);
+
+        // This also compiles, despite the fact that the register offset is
+        // mismatched and nonsensical
+        audio.wfo(utra::uart::TXFULL_TXFULL, 1);
+}
+
+```
