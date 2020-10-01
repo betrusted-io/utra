@@ -272,7 +272,7 @@ where
         let value_as_usize: usize = value.try_into().unwrap_or_default();
         (value_as_usize & !(field.mask << field.offset))
             .try_into()
-            .unwrap_or_default()         
+            .unwrap_or_default()
     }
 
     /// Shift & mask a value to its final field position
