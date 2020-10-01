@@ -272,10 +272,9 @@ where
         let value_as_usize: usize = value.try_into().unwrap_or_default();
         (value_as_usize & !(field.mask << field.offset))
             .try_into()
-            .unwrap_or_default()
-         
+            .unwrap_or_default()         
     }
-    
+
     /// Shift & mask a value to its final field position
     pub fn ms(&mut self, field: Field, value: T) -> T {
         let value_as_usize: usize = value.try_into().unwrap_or_default();
@@ -285,6 +284,6 @@ where
     }
 
 }
-    """)
+""")
 if __name__ == "__main__":
     main()
