@@ -2,3 +2,5 @@
 /target
 /utra
 Cargo.lock
+/example/target
+/.idea
