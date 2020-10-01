@@ -1,4 +1,4 @@
-// Auto-genarated by svd2utra.py from ../betrusted-soc/build/software/soc.svd on 10/01/2020, 14:55:47
+// Auto-genarated by svd2utra.py from example/soc.svd on 10/02/2020, 04:20:50
 
 #![cfg_attr(target_os = "none", no_std)]
 use core::convert::TryInto;
@@ -159,6 +159,8 @@ where
 }
     
 /////// physical base addresses of memory regions
+pub const HW_ROM_MEM :     u32 = 0x00000000;
+pub const HW_ROM_MEM_LEN : u32 = 0x00008000;
 pub const HW_SRAM_MEM :     u32 = 0x10000000;
 pub const HW_SRAM_MEM_LEN : u32 = 0x00020000;
 pub const HW_VEXRISCV_DEBUG_MEM :     u32 = 0xEFFF0000;
@@ -184,6 +186,7 @@ pub const HW_CSR_MEM_LEN : u32 = 0x00040000;
 /////// physical base addresses of registers
 pub const HW_CTRL_BASE :   u32 = 0xF0000000;
 pub const HW_IDENTIFIER_MEM_BASE :   u32 = 0xF0002000;
+pub const HW_UART_PHY_BASE :   u32 = 0xF0003000;
 pub const HW_UART_BASE :   u32 = 0xF0004000;
 pub const HW_TIMER0_BASE :   u32 = 0xF0005000;
 pub const HW_REBOOT_BASE :   u32 = 0xF0006000;
@@ -228,6 +231,11 @@ pub mod utra {
         pub const IDENTIFIER_MEM_IDENTIFIER_MEM: crate::Field = crate::Field::new(8, 0, IDENTIFIER_MEM);
 
     }
+    pub mod uart_phy {
+        pub const TUNING_WORD: crate::Register = crate::Register::new(0x0000);
+        pub const TUNING_WORD_TUNING_WORD: crate::Field = crate::Field::new(32, 0, TUNING_WORD);
+
+    }
     pub mod uart {
         pub const RXTX: crate::Register = crate::Register::new(0x0000);
         pub const RXTX_RXTX: crate::Field = crate::Field::new(8, 0, RXTX);
@@ -252,30 +260,6 @@ pub mod utra {
 
         pub const RXFULL: crate::Register = crate::Register::new(0x001c);
         pub const RXFULL_RXFULL: crate::Field = crate::Field::new(1, 0, RXFULL);
-
-        pub const XOVER_RXTX: crate::Register = crate::Register::new(0x0020);
-        pub const XOVER_RXTX_XOVER_RXTX: crate::Field = crate::Field::new(8, 0, XOVER_RXTX);
-
-        pub const XOVER_TXFULL: crate::Register = crate::Register::new(0x0024);
-        pub const XOVER_TXFULL_XOVER_TXFULL: crate::Field = crate::Field::new(1, 0, XOVER_TXFULL);
-
-        pub const XOVER_RXEMPTY: crate::Register = crate::Register::new(0x0028);
-        pub const XOVER_RXEMPTY_XOVER_RXEMPTY: crate::Field = crate::Field::new(1, 0, XOVER_RXEMPTY);
-
-        pub const XOVER_EV_STATUS: crate::Register = crate::Register::new(0x002c);
-        pub const XOVER_EV_STATUS_XOVER_EV_STATUS: crate::Field = crate::Field::new(2, 0, XOVER_EV_STATUS);
-
-        pub const XOVER_EV_PENDING: crate::Register = crate::Register::new(0x0030);
-        pub const XOVER_EV_PENDING_XOVER_EV_PENDING: crate::Field = crate::Field::new(2, 0, XOVER_EV_PENDING);
-
-        pub const XOVER_EV_ENABLE: crate::Register = crate::Register::new(0x0034);
-        pub const XOVER_EV_ENABLE_XOVER_EV_ENABLE: crate::Field = crate::Field::new(2, 0, XOVER_EV_ENABLE);
-
-        pub const XOVER_TXEMPTY: crate::Register = crate::Register::new(0x0038);
-        pub const XOVER_TXEMPTY_XOVER_TXEMPTY: crate::Field = crate::Field::new(1, 0, XOVER_TXEMPTY);
-
-        pub const XOVER_RXFULL: crate::Register = crate::Register::new(0x003c);
-        pub const XOVER_RXFULL_XOVER_RXFULL: crate::Field = crate::Field::new(1, 0, XOVER_RXFULL);
 
     }
     pub mod timer0 {
@@ -1104,6 +1088,15 @@ mod tests{
         baz |= identifier_mem_csr.ms(utra::identifier_mem::IDENTIFIER_MEM_IDENTIFIER_MEM, 1);
         identifier_mem_csr.wfo(utra::identifier_mem::IDENTIFIER_MEM_IDENTIFIER_MEM, baz);
 
+        let mut uart_phy_csr = CSR::new(HW_UART_PHY_BASE as *mut u32);
+        let foo = uart_phy_csr.r(utra::uart_phy::TUNING_WORD);
+        uart_phy_csr.wo(utra::uart_phy::TUNING_WORD, foo);
+        let bar = uart_phy_csr.rf(utra::uart_phy::TUNING_WORD_TUNING_WORD);
+        uart_phy_csr.rmwf(utra::uart_phy::TUNING_WORD_TUNING_WORD, bar);
+        let mut baz = uart_phy_csr.zf(utra::uart_phy::TUNING_WORD_TUNING_WORD, bar);
+        baz |= uart_phy_csr.ms(utra::uart_phy::TUNING_WORD_TUNING_WORD, 1);
+        uart_phy_csr.wfo(utra::uart_phy::TUNING_WORD_TUNING_WORD, baz);
+
         let mut uart_csr = CSR::new(HW_UART_BASE as *mut u32);
         let foo = uart_csr.r(utra::uart::RXTX);
         uart_csr.wo(utra::uart::RXTX, foo);
@@ -1168,70 +1161,6 @@ mod tests{
         let mut baz = uart_csr.zf(utra::uart::RXFULL_RXFULL, bar);
         baz |= uart_csr.ms(utra::uart::RXFULL_RXFULL, 1);
         uart_csr.wfo(utra::uart::RXFULL_RXFULL, baz);
-
-        let foo = uart_csr.r(utra::uart::XOVER_RXTX);
-        uart_csr.wo(utra::uart::XOVER_RXTX, foo);
-        let bar = uart_csr.rf(utra::uart::XOVER_RXTX_XOVER_RXTX);
-        uart_csr.rmwf(utra::uart::XOVER_RXTX_XOVER_RXTX, bar);
-        let mut baz = uart_csr.zf(utra::uart::XOVER_RXTX_XOVER_RXTX, bar);
-        baz |= uart_csr.ms(utra::uart::XOVER_RXTX_XOVER_RXTX, 1);
-        uart_csr.wfo(utra::uart::XOVER_RXTX_XOVER_RXTX, baz);
-
-        let foo = uart_csr.r(utra::uart::XOVER_TXFULL);
-        uart_csr.wo(utra::uart::XOVER_TXFULL, foo);
-        let bar = uart_csr.rf(utra::uart::XOVER_TXFULL_XOVER_TXFULL);
-        uart_csr.rmwf(utra::uart::XOVER_TXFULL_XOVER_TXFULL, bar);
-        let mut baz = uart_csr.zf(utra::uart::XOVER_TXFULL_XOVER_TXFULL, bar);
-        baz |= uart_csr.ms(utra::uart::XOVER_TXFULL_XOVER_TXFULL, 1);
-        uart_csr.wfo(utra::uart::XOVER_TXFULL_XOVER_TXFULL, baz);
-
-        let foo = uart_csr.r(utra::uart::XOVER_RXEMPTY);
-        uart_csr.wo(utra::uart::XOVER_RXEMPTY, foo);
-        let bar = uart_csr.rf(utra::uart::XOVER_RXEMPTY_XOVER_RXEMPTY);
-        uart_csr.rmwf(utra::uart::XOVER_RXEMPTY_XOVER_RXEMPTY, bar);
-        let mut baz = uart_csr.zf(utra::uart::XOVER_RXEMPTY_XOVER_RXEMPTY, bar);
-        baz |= uart_csr.ms(utra::uart::XOVER_RXEMPTY_XOVER_RXEMPTY, 1);
-        uart_csr.wfo(utra::uart::XOVER_RXEMPTY_XOVER_RXEMPTY, baz);
-
-        let foo = uart_csr.r(utra::uart::XOVER_EV_STATUS);
-        uart_csr.wo(utra::uart::XOVER_EV_STATUS, foo);
-        let bar = uart_csr.rf(utra::uart::XOVER_EV_STATUS_XOVER_EV_STATUS);
-        uart_csr.rmwf(utra::uart::XOVER_EV_STATUS_XOVER_EV_STATUS, bar);
-        let mut baz = uart_csr.zf(utra::uart::XOVER_EV_STATUS_XOVER_EV_STATUS, bar);
-        baz |= uart_csr.ms(utra::uart::XOVER_EV_STATUS_XOVER_EV_STATUS, 1);
-        uart_csr.wfo(utra::uart::XOVER_EV_STATUS_XOVER_EV_STATUS, baz);
-
-        let foo = uart_csr.r(utra::uart::XOVER_EV_PENDING);
-        uart_csr.wo(utra::uart::XOVER_EV_PENDING, foo);
-        let bar = uart_csr.rf(utra::uart::XOVER_EV_PENDING_XOVER_EV_PENDING);
-        uart_csr.rmwf(utra::uart::XOVER_EV_PENDING_XOVER_EV_PENDING, bar);
-        let mut baz = uart_csr.zf(utra::uart::XOVER_EV_PENDING_XOVER_EV_PENDING, bar);
-        baz |= uart_csr.ms(utra::uart::XOVER_EV_PENDING_XOVER_EV_PENDING, 1);
-        uart_csr.wfo(utra::uart::XOVER_EV_PENDING_XOVER_EV_PENDING, baz);
-
-        let foo = uart_csr.r(utra::uart::XOVER_EV_ENABLE);
-        uart_csr.wo(utra::uart::XOVER_EV_ENABLE, foo);
-        let bar = uart_csr.rf(utra::uart::XOVER_EV_ENABLE_XOVER_EV_ENABLE);
-        uart_csr.rmwf(utra::uart::XOVER_EV_ENABLE_XOVER_EV_ENABLE, bar);
-        let mut baz = uart_csr.zf(utra::uart::XOVER_EV_ENABLE_XOVER_EV_ENABLE, bar);
-        baz |= uart_csr.ms(utra::uart::XOVER_EV_ENABLE_XOVER_EV_ENABLE, 1);
-        uart_csr.wfo(utra::uart::XOVER_EV_ENABLE_XOVER_EV_ENABLE, baz);
-
-        let foo = uart_csr.r(utra::uart::XOVER_TXEMPTY);
-        uart_csr.wo(utra::uart::XOVER_TXEMPTY, foo);
-        let bar = uart_csr.rf(utra::uart::XOVER_TXEMPTY_XOVER_TXEMPTY);
-        uart_csr.rmwf(utra::uart::XOVER_TXEMPTY_XOVER_TXEMPTY, bar);
-        let mut baz = uart_csr.zf(utra::uart::XOVER_TXEMPTY_XOVER_TXEMPTY, bar);
-        baz |= uart_csr.ms(utra::uart::XOVER_TXEMPTY_XOVER_TXEMPTY, 1);
-        uart_csr.wfo(utra::uart::XOVER_TXEMPTY_XOVER_TXEMPTY, baz);
-
-        let foo = uart_csr.r(utra::uart::XOVER_RXFULL);
-        uart_csr.wo(utra::uart::XOVER_RXFULL, foo);
-        let bar = uart_csr.rf(utra::uart::XOVER_RXFULL_XOVER_RXFULL);
-        uart_csr.rmwf(utra::uart::XOVER_RXFULL_XOVER_RXFULL, bar);
-        let mut baz = uart_csr.zf(utra::uart::XOVER_RXFULL_XOVER_RXFULL, bar);
-        baz |= uart_csr.ms(utra::uart::XOVER_RXFULL_XOVER_RXFULL, 1);
-        uart_csr.wfo(utra::uart::XOVER_RXFULL_XOVER_RXFULL, baz);
 
         let mut timer0_csr = CSR::new(HW_TIMER0_BASE as *mut u32);
         let foo = timer0_csr.r(utra::timer0::LOAD);
