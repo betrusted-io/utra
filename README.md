@@ -1,5 +1,7 @@
 # Unambiguous Thin Register Abstraction (UTRA)
 
+NOTE: This has been migrated into the Xous-core, see https://github.com/betrusted-io/xous-core/tree/master/svd2utra for the latest.
+
 ## Motivation
 
 UTRA is a register abstraction for accessing hardware resources. It tries to be:
